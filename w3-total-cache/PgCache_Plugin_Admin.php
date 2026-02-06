@@ -116,7 +116,7 @@ class PgCache_Plugin_Admin {
 
 				$w3_cache_file_cleaner_generic = new Cache_File_Cleaner_Generic(
 					array(
-						'exclude'         => array(
+						'exclude'         => array( // phpcs:ignore WordPressVIPMinimum
 							'.htaccess',
 						),
 						'cache_dir'       => $flush_dir,
@@ -209,8 +209,16 @@ class PgCache_Plugin_Admin {
 			$url_matches     = null;
 			$sitemap_matches = null;
 
-			$xml = simplexml_load_string( $response['body'] );
+			// Disable libxml errors to prevent warnings from breaking the XML parsing.
+			$previous = \libxml_use_internal_errors( true );
+			// Load the XML response.
+			$xml = \simplexml_load_string( $response['body'] );
+			// Clear any errors that may have occurred during parsing.
+			\libxml_clear_errors();
+			// Restore the previous libxml error handling.
+			\libxml_use_internal_errors( $previous );
 
+			// Check if the XML load failed; return the URLs found so far (sitemap URL).
 			if ( false === $xml ) {
 				return $urls;
 			}
@@ -410,8 +418,23 @@ class PgCache_Plugin_Admin {
 			if ( $should_count ) {
 				$size           = $g->get_cache_stats_size( $summary['timeout_time'] );
 				$v['size_used'] = Util_UsageStatistics::bytes_to_size2( $size, 'bytes' );
-				$v['items']     = Util_UsageStatistics::integer2( $size, 'items' );
+				if ( isset( $size['timeout_occurred'] ) && $size['timeout_occurred'] ) {
+					$v['items'] = Util_UsageStatistics::integer2( $size, 'items' ) . ' (partial)';
+				} else {
+					$items_count = isset( $size['items'] ) ? (int) $size['items'] : 0;
+					$v['items']  = Util_UsageStatistics::integer2( $size, 'items' );
+				}
 
+				set_transient( 'w3tc_ustats_pagecache_size', $v, 55 );
+			} elseif ( isset( $v['items'] ) && '...counting' === $v['items'] ) {
+				// If still counting, try to get a fresh count.
+				$size           = $g->get_cache_stats_size( $summary['timeout_time'] );
+				$v['size_used'] = Util_UsageStatistics::bytes_to_size2( $size, 'bytes' );
+				if ( isset( $size['timeout_occurred'] ) && $size['timeout_occurred'] ) {
+					$v['items'] = Util_UsageStatistics::integer2( $size, 'items' ) . ' (partial)';
+				} else {
+					$v['items'] = Util_UsageStatistics::integer2( $size, 'items' );
+				}
 				set_transient( 'w3tc_ustats_pagecache_size', $v, 55 );
 			}
 
