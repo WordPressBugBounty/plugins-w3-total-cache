@@ -1,9 +1,9 @@
 <?php return array(
     'root' => array(
         'name' => 'boldgrid/w3-total-cache',
-        'pretty_version' => '2.9.2',
-        'version' => '2.9.2.0',
-        'reference' => 'c94c7295e92553a8218201de93f4927b0ec56717',
+        'pretty_version' => '2.9.3',
+        'version' => '2.9.3.0',
+        'reference' => '202309df72166993e350488695deaa0bc39b97e6',
         'type' => 'wordpress-plugin',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -38,9 +38,9 @@
             'dev_requirement' => false,
         ),
         'boldgrid/w3-total-cache' => array(
-            'pretty_version' => '2.9.2',
-            'version' => '2.9.2.0',
-            'reference' => 'c94c7295e92553a8218201de93f4927b0ec56717',
+            'pretty_version' => '2.9.3',
+            'version' => '2.9.3.0',
+            'reference' => '202309df72166993e350488695deaa0bc39b97e6',
             'type' => 'wordpress-plugin',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
